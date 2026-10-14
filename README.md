@@ -1,4 +1,4 @@
-# Nome do app
+# Cinebox
 
 **Membros:** Enrico Barreto, Nicolas Milani, Vinicius Diniz.
 **Dataset:** TMDB + https://www.themoviedb.org/
