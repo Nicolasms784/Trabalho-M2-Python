@@ -18,7 +18,7 @@
 - [x] 11. App publicado no Streamlit Community Cloud
 
 ## Funcionalidade extra
-Mostrar a capa do filme com uma breve descrição/sinopse.
+Mostrar a capa do filme com uma breve descrição/sinopse e uma função de Watchlist
 
 ## Como rodar
 Comandos para rodar o app no computador.
