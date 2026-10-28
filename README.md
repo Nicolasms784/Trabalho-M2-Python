@@ -20,6 +20,8 @@
 ## Funcionalidade extra
 Mostrar a capa do filme com uma breve descrição/sinopse e uma função de Watchlist
 
+Funcionalidade Watchlist permite adicionar um filme que você quer deixar salvo para ver depois
+
 ## Como rodar
 1. Certifica-te de que tens o Python instalado no teu computador.
 2. Abre o terminal (PowerShell ou CMD) na pasta do projeto.
