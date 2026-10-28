@@ -1,4 +1,4 @@
-# Cinebox
+# CineVibe
 
 **Membros:** Enrico Barreto, Nicolas Milani, Vinicius Diniz.
 **Dataset:** TMDB + https://www.themoviedb.org/
@@ -21,4 +21,10 @@
 Mostrar a capa do filme com uma breve descrição/sinopse e uma função de Watchlist
 
 ## Como rodar
-Comandos para rodar o app no computador.
+1. Certifica-te de que tens o Python instalado no teu computador.
+2. Abre o terminal (PowerShell ou CMD) na pasta do projeto.
+3. Instala as dependências necessárias (Streamlit e Pandas):
+   pip install streamlit pandas
+
+4.Executa o comando para iniciar a aplicação localmente:
+  python -m streamlit run app.py
