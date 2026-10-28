@@ -1,104 +1,122 @@
-import ast
+import csv
 import os
-import pandas as pd
+import unicodedata
 
-ARQUIVO_CSV = "tmdb_2000_filmes.csv"
+CAMINHO_FILMES = "tmdb_2000_filmes.csv"
 
-# Dicionario de traducao de generos do TMDB
 MAPA_GENEROS = {
-    28: "Acao",
-    12: "Aventura",
-    16: "Animacao",
-    35: "Comedia",
-    80: "Crime",
-    99: "Documentario",
-    18: "Drama",
-    10751: "Familia",
-    14: "Fantasia",
-    36: "Historia",
-    27: "Terror",
-    10402: "Musica",
-    9648: "Misterio",
-    10749: "Romance",
-    878: "Ficcao Cientifica",
-    10770: "Cinema TV",
-    53: "Suspense",
-    10752: "Guerra",
-    37: "Faroeste",
+    "28": "Acao",
+    "12": "Aventura",
+    "16": "Animacao",
+    "35": "Comedia",
+    "80": "Crime",
+    "99": "Documentario",
+    "18": "Drama",
+    "10751": "Familia",
+    "14": "Fantasia",
+    "36": "Historia",
+    "27": "Terror",
+    "10402": "Musica",
+    "9648": "Misterio",
+    "10749": "Romance",
+    "878": "Ficcao Cientifica",
+    "10770": "Cinema TV",
+    "53": "Suspense",
+    "10752": "Guerra",
+    "37": "Faroeste",
 }
 
 
-def carregar_e_tratar_dados():
-  """Le os dados do CSV local obrigatoriamente e aplica o tratamento."""
-  if not os.path.exists(ARQUIVO_CSV):
-    return pd.DataFrame()
+def ler_filmes(caminho=CAMINHO_FILMES):
+    if not os.path.exists(caminho):
+        return []
+    filmes = []
+    with open(caminho, encoding="utf-8", newline="") as arquivo:
+        leitor = csv.DictReader(arquivo)
+        for linha in leitor:
+            filmes.append(linha)
+    return filmes
 
-  df = pd.read_csv(ARQUIVO_CSV)
-  return _processar_conversoes(df)
+
+def converter_numero(texto):
+    if not texto:
+        return 0.0
+    try:
+        return float(texto)
+    except ValueError:
+        return 0.0
 
 
-def _processar_conversoes(df):
-  """Realiza a conversao de tipos de colunas e mapeamentos."""
-  # Conversoes numericas
-  df["vote_average"] = pd.to_numeric(
-      df.get("vote_average", 0), errors="coerce"
-  ).fillna(0.0)
-  df["popularity"] = pd.to_numeric(
-      df.get("popularity", 0), errors="coerce"
-  ).fillna(0.0)
+def converter_ano(texto):
+    if not texto or len(texto) < 4:
+        return 0
+    try:
+        return int(texto[:4])
+    except ValueError:
+        return 0
 
-  # Tratamento de datas e extracao do ano
-  if "release_date" in df.columns:
-    df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce")
-    df["Ano"] = df["release_date"].dt.year.fillna(0).astype(int)
-  else:
-    df["Ano"] = 0
 
-  # Converte IDs de generos em lista legivel
-  def converter_generos(genre_ids):
-    if isinstance(genre_ids, str):
-      try:
-        genre_ids = ast.literal_eval(genre_ids)
-      except Exception:
+def converter_generos(texto_ids):
+    if not texto_ids:
         return "Desconhecido"
+    
+    texto_limpo = texto_ids.replace("[", "").replace("]", "").replace(" ", "")
+    if not texto_limpo:
+        return "Desconhecido"
+    
+    ids_lista = texto_limpo.split(",")
+    nomes = []
+    for id_g in ids_lista:
+        if id_g in MAPA_GENEROS:
+            nomes.append(MAPA_GENEROS[id_g])
+            
+    if len(nomes) == 0:
+        return "Desconhecido"
+    return ", ".join(nomes)
 
-    if isinstance(genre_ids, list):
-      nomes = [
-          MAPA_GENEROS.get(g_id, "")
-          for g_id in genre_ids
-          if g_id in MAPA_GENEROS
-      ]
-      return ", ".join(nomes) if nomes else "Desconhecido"
-    return "Desconhecido"
 
-  if "genre_ids" in df.columns:
-    df["Generos"] = df["genre_ids"].apply(converter_generos)
-  elif "Generos" not in df.columns:
-    df["Generos"] = "Desconhecido"
+def remover_acentos(texto):
+    if not texto:
+        return ""
+    normalizado = unicodedata.normalize("NFD", texto)
+    apenas_letras = []
+    for caractere in normalizado:
+        if unicodedata.category(caractere) != "Mn":
+            apenas_letras.append(caractere)
+    return "".join(apenas_letras)
 
-  # Classificacao dos registros em faixas a partir de coluna numerica
-  def classificar_nota(nota):
-    if nota >= 8.0:
-      return "Obra-Prima (8.0+)"
-    elif nota >= 6.5:
-      return "Muito Bom (6.5 - 7.9)"
-    elif nota >= 5.0:
-      return "Regular (5.0 - 6.4)"
-    else:
-      return "Ruim (< 5.0)"
 
-  df["Faixa de Avaliacao"] = df["vote_average"].apply(classificar_nota)
+def preparar_filmes(linhas):
+    filmes = []
+    for i in range(len(linhas)):
+        linha = linhas[i]
+        id_original = str(linha.get("id", "")).strip()
+        if not id_original:
+            id_original = f"filme_{i}"
+            
+        titulo_original = linha.get("title", "Sem Titulo")
+            
+        filme = {
+            "id": id_original,
+            "titulo": titulo_original,
+            "titulo_busca": remover_acentos(titulo_original).lower(),
+            "ano": converter_ano(linha.get("release_date", "")),
+            "nota": converter_numero(linha.get("vote_average", 0)),
+            "popularidade": converter_numero(linha.get("popularity", 0)),
+            "generos": converter_generos(linha.get("genre_ids", "")),
+            "sinopse": linha.get("overview", "Sem sinopse disponivel."),
+            "caminho_poster": linha.get("poster_path", ""),
+        }
+        filmes.append(filme)
+    return filmes
 
-  # Renomeia colunas para nomes legiveis em portugues
-  df_renomeado = df.rename(
-      columns={
-          "id": "id",
-          "title": "Titulo",
-          "release_date": "Data de Lancamento",
-          "vote_average": "Nota Media",
-          "popularity": "Popularidade",
-          "overview": "Sinopse",
-      }
-  )
 
-  return df_renomeado
+def carregar_filmes(caminho=CAMINHO_FILMES):
+    return preparar_filmes(ler_filmes(caminho))
+
+
+if __name__ == "__main__":
+    dados_brutos = ler_filmes()
+    print("Total de linhas lidas:", len(dados_brutos))
+    if len(dados_brutos) > 0:
+        print("Primeiro filme preparado:", carregar_filmes()[0])
