@@ -2,7 +2,7 @@
 
 **Membros:** Enrico Barreto, Nicolas Milani, Vinicius Diniz.
 **Dataset:** TMDB + https://www.themoviedb.org/
-**App publicado:** https://...streamlit.app
+**App publicado:** https://trabalho-m2-python-gb599mbb7zmvgiudpcbsc6.streamlit.app/
 
 ## Funcionalidades
 - [x] 1. Ler os dados do arquivo CSV do dataset.
