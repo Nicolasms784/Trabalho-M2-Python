@@ -24,7 +24,7 @@ Mostrar a capa do filme com uma breve descrição/sinopse e uma função de Watc
 1. Certifica-te de que tens o Python instalado no teu computador.
 2. Abre o terminal (PowerShell ou CMD) na pasta do projeto.
 3. Instala as dependências necessárias (Streamlit e Pandas):
-   pip install streamlit pandas
+   pip install streamlit
 
 4.Executa o comando para iniciar a aplicação localmente:
   python -m streamlit run app.py
