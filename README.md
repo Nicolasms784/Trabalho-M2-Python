@@ -25,7 +25,7 @@ Funcionalidade Watchlist permite adicionar um filme que você quer deixar salvo 
 ## Como rodar
 1. Certifica-te de que tens o Python instalado no teu computador.
 2. Abre o terminal (PowerShell ou CMD) na pasta do projeto.
-3. Instala as dependências necessárias (Streamlit e Pandas):
+3. Instala as dependências necessárias (Streamlit):
    pip install streamlit
 
 4.Executa o comando para iniciar a aplicação localmente:
